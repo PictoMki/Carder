@@ -12,6 +12,7 @@ import Koloda
 var resultImage:[UIImage] = []
 var swipeCount:Int = 0
 var swipeLimitCount:Int = 1
+var limitSwitch:Bool = false
 var images:[UIImage] = [
     UIImage(named: "torannpu-illust1")!,
     UIImage(named: "torannpu-illust2")!,
@@ -82,9 +83,9 @@ class GameViewController: UIViewController,KolodaViewDelegate,KolodaViewDataSour
     @IBOutlet weak var kolodaView: KolodaView!
     @IBOutlet weak var button: UIButton!
     
-    
-    
     override func viewDidLoad() {
+        // 配列の中身をシャッフル
+        images.shuffle()
         super.viewDidLoad()
         var imageName:[String] = []
         let userDefaults = UserDefaults.standard
@@ -96,17 +97,23 @@ class GameViewController: UIViewController,KolodaViewDelegate,KolodaViewDataSour
             }
             
         }
-        button.layer.cornerRadius = 10
-        images.shuffle()
-        resultImage = []
-        resultImage.append(images[0])
+        // delegateとdataSorcseを設定
         kolodaView.dataSource = self
         kolodaView.delegate = self
+        // ボタンを角丸
+        button.layer.cornerRadius = 10
+        // スワイプ数をリセット
         swipeCount = 0
-        print(swipeLimitCount)
-        print(swipeCount)
-        print(images.count)
-
+        resultImage = []
+        resultImage.append(images[0])
+    }
+    
+    override func viewDidLayoutSubviews() {
+        if (limitSwitch) {
+            button.setTitle("スタート画面に戻る", for: .normal)
+        }else{
+            button.setTitle("結果を見る", for: .normal)
+        }
     }
     
     func kolodaNumberOfCards(_ koloda:KolodaView) -> Int {
@@ -127,22 +134,33 @@ class GameViewController: UIViewController,KolodaViewDelegate,KolodaViewDataSour
     }
     
     func koloda(_ koloda: KolodaView, shouldSwipeCardAt index: Int, in direction: SwipeResultDirection) -> Bool {
-        if (swipeLimitCount == swipeCount) {
-            return false
+        if (limitSwitch) {
+            return true
+        }else{
+            if (swipeLimitCount == swipeCount) {
+                return false
+            }
+            return true
         }
-        return true
-        
     }
 
     //dtagの方向など
     func koloda(_ koloda: KolodaView, didSwipeCardAt index: Int, in direction: SwipeResultDirection) {
-        resultImage.append(images[index + 1])
-        swipeCount += 1
+        if (!limitSwitch) {
+            resultImage.append(images[index + 1])
+            swipeCount += 1
+        }
+        
     }
 
     //likeへ
     @IBAction func cardGoToLike() {
-        transitionToNextView(ViewController: self, Identifier: "ResultViewController")
+        if (limitSwitch) {
+            self.dismiss(animated: true, completion: nil)
+        }else{
+            transitionToNextView(ViewController: self, Identifier: "ResultViewController")
+        }
+        
         
     }
     

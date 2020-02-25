@@ -11,6 +11,8 @@ import UIKit
 class StartViewController: UIViewController {
     @IBOutlet weak var button: UIButton!
     @IBOutlet weak var button2: UIButton!
+    @IBOutlet weak var limitSwi: UISwitch!
+    
     
     @IBOutlet weak var limitCountLabel: UILabel!
     var limitCount:Int = 1
@@ -21,6 +23,7 @@ class StartViewController: UIViewController {
         button2.layer.cornerRadius = 10
         limitCount = swipeLimitCount
         limitCountLabel.text = String(limitCount)
+        limitSwi.isOn = limitSwitch
         // Do any additional setup after loading the view.
         if (UserDefaults.standard.object(forKey: "imageName") != nil) {
             let name = UserDefaults.standard.object(forKey: "imageName") as! [String]
@@ -56,6 +59,10 @@ class StartViewController: UIViewController {
         let dialog = UIAlertController(title: "リセット完了", message: "今まで出たカードをリセットしました。", preferredStyle: .alert)
         dialog.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(dialog, animated: true, completion: nil)
+    }
+    
+    @IBAction func changeSwitch(_ sender: Any) {
+        limitSwitch = limitSwi.isOn
     }
     
     func transitionToNextView(ViewController:UIViewController,Identifier:String) {
